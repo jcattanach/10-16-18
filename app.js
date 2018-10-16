@@ -6,22 +6,36 @@ let containerList = document.getElementById('containerList')
 
 const ORDER_URL = "http://dc-coffeerun.herokuapp.com/api/coffeeorders/"
 //const ORDER_URL_WITH_EMAIL = `http://dc-coffeerun.herokuapp.com/api/coffeeorders/${pass}`
-function hideOrders(orderList){
-  orderList.parentElement.innerHTML = ''
+
+
+function deleteConformation(email) {
+  deleteNotice = `
+  <h4>Your order for ${email} has been deleted<h4>`
+
+  infoContainer.innerHTML = deleteNotice
+  containerList.innerHTML = ''
 }
 
-function fetchCoffeeOrders(callback) {
-  fetch(ORDER_URL)
-  .then(function(response){
-  return response.json()})
-  .then(function(orders){
-    callback(orders)
-})}
+
+
+
+function deleteOrder(email) {
+  console.log(ORDER_URL + email)
+  fetch(ORDER_URL + email,{
+    'method': "DELETE"
+  })
+  deleteConformation(email)
+}
+
+function deleteOrderBtn(){
+  deleteOrderEmail = txtEmailDeleteOrder.value
+  deleteOrder(deleteOrderEmail)
+}
 
 function submitOrder(choice) {
   if(txtPlaceOrderEmail.value == "") {
-     infoContainer.insertAdjacentHTML("beforeend", "Please enter a valid email!")
-  } else {
+    infoContainer.insertAdjacentHTML("beforeend", "Please enter a valid email!")
+} else {
   order = choice
   placeOrderEmail = txtPlaceOrderEmail.value
   fetch(ORDER_URL, {
@@ -37,6 +51,16 @@ function submitOrder(choice) {
   let newOrderConfirmation = `Your order of ${order} has been submitted for ${placeOrderEmail}!`
   infoContainer.innerHTML = newOrderConfirmation}
 }
+
+
+function fetchCoffeeOrders(callback) {
+  fetch(ORDER_URL)
+  .then(function(response){
+  return response.json()})
+  .then(function(orders){
+    callback(orders)
+})}
+
 
 function displayOrders(orders) {
 let hideButton = `<button onclick="hideOrders(this)">Hide List</button>`
@@ -58,10 +82,13 @@ btnShowOrder.addEventListener('click', function(){
     displayOrders(orders)
   })
 })
+function hideOrders(info){
+  info.parentElement.innerHTML = ''
+}
 
 btnPlaceOrder.addEventListener('click', function() {
   orderChoicesList = `
-  <h3>Submit your email and then click on an option</h3>
+  <h3>Enter your email and then click on an option</h3>
   <input type="email" id="txtPlaceOrderEmail" placeholder="Email"/>
   <ul
     <li>
@@ -75,7 +102,17 @@ btnPlaceOrder.addEventListener('click', function() {
     </li><li>
     <button id="btnSubmitOrder" onclick="submitOrder(this.innerHTML)">Machiatto</button>
     </li>
-  </ul>`
+  </ul>
+  <button onclick="hideOrders(this)">Quit Order</button>`
 
   infoContainer.innerHTML = orderChoicesList
+})
+
+btnDeleteOrder.addEventListener('click',function(){
+  deletePrompt = `
+  <h4>Enter your email and your order will be deleted</h4>
+  <input id="txtEmailDeleteOrder"type="email" placeholder="email"/>
+  <button id="deleteOrder" onclick="deleteOrderBtn()">Submit</button>`
+
+infoContainer.innerHTML = deletePrompt
 })
